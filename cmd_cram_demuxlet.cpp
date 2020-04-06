@@ -539,25 +539,21 @@ int32_t main(int32_t argc, char** argv) {
   // start finding the next-best matching individual
   // here we iterate each cell separately.
   // pre-calculate nsnp*nv*nv*9, nv*1*9, 1*nv*9, 1*9
-  double* gpAB = new double[scl.nsnps * nv * nv * 9];
-  double* gpA0 = new double[scl.nsnps * nv * 9];
-  double* gp00 = new double[scl.nsnps * 9];
-
   int32_t j, k, l, m, n;  
-  for(i=0; i < scl.nsnps; ++i) {
-    for(j=0; j < nv; ++j) {
-      for(k=0; k < nv; ++k) {
-	gps = scl.snps[i].gps;
-	for(l=0; l < 3; ++l) {
-	  for(m=0; m < 3; ++m) {
-	    gpAB[i*nv*nv*9 + j*nv*9 + k*9 + l*3 + m] = gps[j*3+l] * gps[k*3+m];
-	    gpA0[i*nv*9 + j*9 + l*3 + m] = gps[j*3+l] * gp0s[i*3+m];
-	    gp00[i*9 + l*3 + m] = gp0s[i*3+l] * gp0s[i*3+m];	    
-	  }
-	}
-      }
-    }
-  }
+  //for(i=0; i < scl.nsnps; ++i) {
+  //   for(j=0; j < nv; ++j) {
+  //     for(k=0; k < nv; ++k) {
+  // 	gps = scl.snps[i].gps;
+  // 	for(l=0; l < 3; ++l) {
+  // 	  for(m=0; m < 3; ++m) {
+  // 	    gpAB[i*nv*nv*9 + j*nv*9 + k*9 + l*3 + m] = gps[j*3+l] * gps[k*3+m];
+  // 	    gpA0[i*nv*9 + j*9 + l*3 + m] = gps[j*3+l] * gp0s[i*3+m];
+  // 	    gp00[i*9 + l*3 + m] = gp0s[i*3+l] * gp0s[i*3+m];	    
+  // 	  }
+  // 	}
+  //     }
+  //   }
+  // }
 
   // iterate each barcode
   int32_t n1 = nv;
@@ -674,7 +670,7 @@ int32_t main(int32_t argc, char** argv) {
 	  std::fill(sumPs.begin(), sumPs.end(), 0);
 	  for(l=0; l < 3; ++l) {
 	    for(m=0; m < 3; ++m) {
-	      p = gpAB[isnp*nv*nv*9 + j*nv*9 + k*9 + l*3 + m];
+	      p =  scl.snps[isnp].gps[j*3+l]*scl.snps[isnp].gps[k*3+m];
 	      for(n=0; n < nAlpha; ++n) 
 		sumPs[n] += (p * pGs[n*9+l*3+m]);
 	    }
@@ -687,8 +683,8 @@ int32_t main(int32_t argc, char** argv) {
 	std::fill(sumPs.begin(), sumPs.end(), 0);
 	for(l=0; l < 3; ++l) {
 	  for(m=0; m < 3; ++m) {
-	    p = gpA0[isnp*nv*9 + j*9 + l*3 + m];
-	    for(n=0; n < nAlpha; ++n) 
+	    p = scl.snps[isnp].gps[j*3+l] * gp0s[i*3+m];
+		for(n=0; n < nAlpha; ++n) 
 	      sumPs[n] += (p * pGs[n*9+l*3+m]);
 	  }
 	}
@@ -700,7 +696,7 @@ int32_t main(int32_t argc, char** argv) {
       std::fill(sumPs.begin(), sumPs.end(), 0);
       for(l=0; l < 3; ++l) {
 	for(m=0; m < 3; ++m) {
-	  p = gp00[isnp*9 + l*3 + m];
+	  p =  gp0s[i*3+l] * gp0s[i*3+m];
 	  for(n=0; n < nAlpha; ++n) 
 	    sumPs[n] += (p * pGs[n*9+l*3+m]);
 	}
